@@ -12,7 +12,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final AudioManager audioManager = new AudioManager(MainActivity.this, "123") {
+        AudioManager audioManager = new AudioManager(MainActivity.this) {
             @Override
             public void onRecordComplete(String filename) {
 
@@ -42,6 +42,9 @@ public class MainActivity extends AppCompatActivity {
         };
 
 
-        audioManager.StartAudio(5000);
+        audioManager.StartAudio(5000, "1256");
+       /* audioManager.StartAudio("1256");
+        audioManager.Stop();
+*/
     }
 }

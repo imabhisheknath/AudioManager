@@ -18,16 +18,16 @@ import java.util.TimerTask;
 public abstract class AudioManager {
     private Context context;
     boolean flag = false;
+    String case_id;
 
     private MediaRecorder mediaRecorder;
-    private String case_id;
 
     private String AudioSavePathInDevice = null;
 
 
-    public AudioManager(Context context, String case_id) {
+    public AudioManager(Context context) {
         this.context = context;
-        this.case_id = case_id;
+
 
     }
 
@@ -50,15 +50,15 @@ public abstract class AudioManager {
     }
 
 
-    public void StartAudio() {
+    public void StartAudio(String case_id) {
 
+        this.case_id = case_id;
         initializeAudio();
     }
 
 
-    public void StartAudio(int time) {
-
-
+    public void StartAudio(int time, String case_id) {
+        this.case_id = case_id;
         initializeAudio();
 
         new Timer().schedule(new TimerTask() {
