@@ -2,11 +2,13 @@ package com.hoyo.audiomanager;
 
 import android.content.Context;
 import android.media.MediaRecorder;
+import android.os.Handler;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -27,8 +29,6 @@ public abstract class AudioManager {
 
     public AudioManager(Context context) {
         this.context = context;
-
-
     }
 
 
@@ -61,17 +61,31 @@ public abstract class AudioManager {
         this.case_id = case_id;
         initializeAudio();
 
-        new Timer().schedule(new TimerTask() {
+        new Handler().postDelayed(stopRecordingRunnable,time);
+
+
+        /*new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
 
                 Stop();
             }
-        }, time);
+        }, time);*/
 
 
     }
 
+    private Runnable stopRecordingRunnable = new Runnable() {
+        @Override
+        public void run() {
+            Stop();
+        }
+    };
+
+
+    public void onPause(){
+        Stop();
+    }
 
     public void Stop() {
 
@@ -110,7 +124,7 @@ public abstract class AudioManager {
     private void initializeAudio() {
 
         SimpleDateFormat simpleDateFormat =
-                new SimpleDateFormat("MMddyyhhmss");
+                new SimpleDateFormat("MMddyyhhmss", Locale.getDefault());
         String currentDateTimeString = simpleDateFormat.format(new Date());
         // String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
         String intStorageDirectory = context.getFilesDir().toString();
