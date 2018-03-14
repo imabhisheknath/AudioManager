@@ -9,9 +9,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * Created by Administrator on 03-02-2018.
@@ -19,61 +16,29 @@ import java.util.TimerTask;
 
 public abstract class AudioManager {
     private Context context;
-    boolean flag = false;
-    String case_id;
+    private boolean flag = false;
+    private String directoryName;
 
     private MediaRecorder mediaRecorder;
-
     private String AudioSavePathInDevice = null;
 
+
+    public abstract void onRecordComplete(String filename);
+    public abstract void onRecordError(String message);
 
     public AudioManager(Context context) {
         this.context = context;
     }
 
 
-    private void MediaRecorderReady() {
-
-        try {
-            mediaRecorder = new MediaRecorder();
-
-            mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-
-            mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.AMR_NB);
-
-            mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-            mediaRecorder.setOutputFile(AudioSavePathInDevice);
-        } catch (Exception ex) {
-            onRecordError(ex.getMessage());
-        }
-
+    private void MediaRecorderReady() throws Exception {
+        mediaRecorder = new MediaRecorder();
+        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.AMR_NB);
+        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+        mediaRecorder.setOutputFile(AudioSavePathInDevice);
     }
 
-
-    public void StartAudio(String case_id) {
-
-        this.case_id = case_id;
-        initializeAudio();
-    }
-
-
-    public void StartAudio(int time, String case_id) {
-        this.case_id = case_id;
-        initializeAudio();
-
-        new Handler().postDelayed(stopRecordingRunnable,time);
-
-
-        /*new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-
-                Stop();
-            }
-        }, time);*/
-
-
-    }
 
     private Runnable stopRecordingRunnable = new Runnable() {
         @Override
@@ -87,26 +52,35 @@ public abstract class AudioManager {
         Stop();
     }
 
+    public void StartAudio(String dirName) {
+        StartAudio(-1,dirName);
+    }
+
+
+    public void StartAudio(int time, String dirName) {
+        this.directoryName = dirName;
+
+        if(initializeAudio()){
+            if(time!=-1) {
+                new Handler().postDelayed(stopRecordingRunnable, time);
+            }
+        } // Else Part Already handled internally
+    }
+
+
     public void Stop() {
 
         if (mediaRecorder != null) {
-
             if (flag) {
                 mediaRecorder.stop();
             }
-
             mediaRecorder.release();
             mediaRecorder = null;
         }
         try {
             if (AudioSavePathInDevice == null) {
-
                 onRecordError("No path created for audio");
-
             } else {
-
-                String path = AudioSavePathInDevice;//it contain your path of file..im using a temp string..
-                String filename = path.substring(path.lastIndexOf("/") + 1);
                 onRecordComplete(AudioSavePathInDevice);
             }
         } catch (Exception ex) {
@@ -116,49 +90,59 @@ public abstract class AudioManager {
     }
 
 
-    public abstract void onRecordComplete(String filename);
+    private boolean initializeAudio() {
 
-    public abstract void onRecordError(String message);
+        File folder = this.getOutputPath();
 
-
-    private void initializeAudio() {
-
-        SimpleDateFormat simpleDateFormat =
-                new SimpleDateFormat("MMddyyhhmss", Locale.getDefault());
-        String currentDateTimeString = simpleDateFormat.format(new Date());
-        // String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
-        String intStorageDirectory = context.getFilesDir().toString();
-        File folder = new File(intStorageDirectory, case_id + "/" + "Audio");
         // File folder = new File(intStorageDirectory, "Audio");
         if (!folder.exists()) {
             boolean wasSuccessful = folder.mkdirs();
             if (!wasSuccessful) {
                 onRecordError("Error while creating folder");
+                return false;
             }
         }
 
+        AudioSavePathInDevice = this.getOutputFileName(folder);
 
-        AudioSavePathInDevice = folder + "/" + currentDateTimeString + "AudioRecording.mp3";
+        try {
+            MediaRecorderReady();
+        } catch (Exception ex) {
+            onRecordError(ex.getMessage());
+            return false;
+        }
 
-        MediaRecorderReady();
+
         try {
             mediaRecorder.prepare();
             mediaRecorder.start();
             flag = true;
-
-
         } catch (IllegalStateException | IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
             onRecordError(e.getMessage());
+            return false;
         } catch (Exception e) {
             onRecordError(e.getMessage());
+            return false;
         }
 
+        return true;
+    }
+
+    private File getOutputPath(){
+        String intStorageDirectory = context.getFilesDir().toString();
+        return new File(intStorageDirectory, directoryName + "/" + "Audio");
+    }
+    private String getOutputFileName(File outputPath){
+        SimpleDateFormat simpleDateFormat =
+                new SimpleDateFormat("MMddyyhhmss", Locale.getDefault());
+        String currentDateTimeString = simpleDateFormat.format(new Date());
+        return outputPath + "/" + currentDateTimeString + "_audio.amr";
     }
 
 
-    //random file creation
+/*    //random file creation
 
     private String CreateRandomAudioFileName(int string) {
         String RandomAudioFileName = "ABCDEFGHIJKLMNOP";
@@ -180,7 +164,7 @@ public abstract class AudioManager {
             onRecordError(ex.getMessage());
             return null;
         }
-    }
+    }*/
 
 
 }
