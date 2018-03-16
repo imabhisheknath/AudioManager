@@ -225,7 +225,7 @@ public class AudioManager {
         mAudioSavePathInDevice = AudioManagerUtils.getAudioFilePath(saveFolder, AUDIO_FILE_FORMAT);
         debugLog("Audio Recording - Init Audio : Creating Audio File : "+mAudioSavePathInDevice.getAbsolutePath());
 
-        if(!mAudioSavePathInDevice.isFile()) {
+       /* if(!mAudioSavePathInDevice.isFile()) {
 
             if(mAudioManagerListener !=null){
                 mAudioManagerListener.OnError("An Internal Error Has Occurred while initializing Media Recorder",
@@ -237,7 +237,7 @@ public class AudioManager {
 
             stopRecording();
             return false;
-        }
+        }*/
 
         debugLog("Audio Recording - Init Audio : Creating Audio File Success");
 
