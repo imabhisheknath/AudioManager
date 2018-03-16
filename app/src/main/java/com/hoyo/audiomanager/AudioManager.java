@@ -11,7 +11,7 @@ import java.io.File;
  * Created by Abhishek on 03-02-2018.
  */
 
-public abstract class AudioManager {
+public class AudioManager {
 
     private static String LOG_TITLE = AudioManager.class.getSimpleName();
 
