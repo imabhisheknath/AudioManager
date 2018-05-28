@@ -24,7 +24,8 @@ public class AudioManager {
     public static String W_SERVICE_ALREADY_RUNNING = "W0211";
 
 
-    private static String AUDIO_FILE_FORMAT = "amr";
+   // private static String AUDIO_FILE_FORMAT = "amr";
+   private static String AUDIO_FILE_FORMAT = "mp3";
     private static String INTERNAL_AUDIO_DIR = "Audio";
     /*private static String AUDIO_FILE_NAME_EXT = "_audio";*/
 
@@ -182,10 +183,17 @@ public class AudioManager {
      */
 
     private void initMediaRecorder() throws Exception {
-        mMediaRecorder = new MediaRecorder();
+        // ORIG
+        /*mMediaRecorder = new MediaRecorder();
         mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.AMR_NB);
         mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+        mMediaRecorder.setOutputFile(mAudioSavePathInDevice.getAbsolutePath());*/
+
+        mMediaRecorder = new MediaRecorder();
+        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+        mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         mMediaRecorder.setOutputFile(mAudioSavePathInDevice.getAbsolutePath());
     }
 
